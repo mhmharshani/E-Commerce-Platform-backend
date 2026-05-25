@@ -1,5 +1,7 @@
 package edu.icet.ecom.repository;
 
-public interface UserRepository {
+import edu.icet.ecom.model.User;
 
+public interface UserRepository {
+    public int saveUser(User user);
 }
