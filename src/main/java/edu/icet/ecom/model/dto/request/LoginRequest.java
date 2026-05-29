@@ -7,10 +7,7 @@ import lombok.*;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class CreateUserRequestDto {
-    private String name;
-    private String email;
+public class LoginRequest {
+    private  String usernameOrEmail;
     private String password;
-    private String role;
 }

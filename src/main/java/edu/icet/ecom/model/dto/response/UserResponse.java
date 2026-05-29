@@ -14,5 +14,6 @@ public class UserResponse {
     private UUID id;
     private String name;
     private String email;
+    private String role;
     private Timestamp createdAt;
 }

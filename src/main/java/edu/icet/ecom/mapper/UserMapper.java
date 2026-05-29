@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 public class UserMapper {
 
     public static User toUser(CreateUserRequestDto requestDto){
+
         return User.builder()
                 .name(requestDto.getName())
                 .email(requestDto.getEmail())
