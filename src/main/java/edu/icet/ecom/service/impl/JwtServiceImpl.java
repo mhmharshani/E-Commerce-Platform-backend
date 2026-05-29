@@ -17,7 +17,7 @@ public class JwtServiceImpl implements JwtService {
 
     @Override
     public String generateToken(User user) {
-        return jwtUtil.generateToken(user.getUsername());
+        return jwtUtil.generateToken(user);
     }
 
     @Override

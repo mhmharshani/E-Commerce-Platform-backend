@@ -1,5 +1,6 @@
 package edu.icet.ecom.jwt;
 
+import edu.icet.ecom.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -23,9 +24,9 @@ public class JwtUtil {
     }
 
     //Generate Token
-    public String generateToken(String username){ //UserDetails?
+    public String generateToken(User user){ //UserDetails?
         return Jwts.builder()
-                .setSubject(username)
+                .setSubject(user.getUsername())
                 .setIssuedAt(new Date())
                 .setExpiration(
                         new Date(System.currentTimeMillis() + EXPIRATION_TIME)
