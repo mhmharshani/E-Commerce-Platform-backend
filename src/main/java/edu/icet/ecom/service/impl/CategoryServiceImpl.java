@@ -8,6 +8,7 @@ import edu.icet.ecom.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -36,5 +37,10 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public Category findCategoryById(String id) {
         return categoryRepository.findCategoryById(id);
+    }
+
+    @Override
+    public List<Category> getAllCategories() {
+        return categoryRepository.getCategories();
     }
 }

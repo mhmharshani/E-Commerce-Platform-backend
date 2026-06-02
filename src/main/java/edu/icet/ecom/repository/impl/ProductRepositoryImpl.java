@@ -1,10 +1,13 @@
 package edu.icet.ecom.repository.impl;
 
+import edu.icet.ecom.mapper.ProductRowMapper;
 import edu.icet.ecom.model.Product;
 import edu.icet.ecom.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
@@ -30,5 +33,14 @@ public class ProductRepositoryImpl implements ProductRepository {
                 product.getCreatedAt(),
                 product.getIsActive()
         );
+    }
+
+    @Override
+    public List<Product> getProducts() {
+        String sql = """
+                SELECT *
+                FROM products
+                """;
+        return template.query(sql, new ProductRowMapper());
     }
 }

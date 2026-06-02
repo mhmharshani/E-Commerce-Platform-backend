@@ -9,6 +9,8 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 @RequiredArgsConstructor
 public class CategoryRepositoryImpl implements CategoryRepository {
@@ -40,5 +42,15 @@ public class CategoryRepositoryImpl implements CategoryRepository {
                 id
         );
         return category == null ? null : category;
+    }
+
+    @Override
+    public List<Category> getCategories() {
+        return template.query(""" 
+                        SELECT *
+                        FROM categories
+                        """,
+                new BeanPropertyRowMapper<>(Category.class)
+        );
     }
 }

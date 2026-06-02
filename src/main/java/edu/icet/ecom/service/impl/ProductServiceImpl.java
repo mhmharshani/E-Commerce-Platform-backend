@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -44,5 +44,14 @@ public class ProductServiceImpl implements ProductService {
                 .price(product.getPrice())
                 .categoryName(product.getCategory().getName())
                 .build();
+    }
+
+    @Override
+    public List<Product> getAllProducts() {
+        List<Product> products = productRepository.getProducts();
+        products.forEach(product -> {
+            categoryService.findCategoryById(product.getCategory().getId().toString());
+        });
+        return products;
     }
 }
