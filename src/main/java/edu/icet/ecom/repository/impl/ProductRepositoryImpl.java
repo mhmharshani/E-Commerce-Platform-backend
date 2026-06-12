@@ -19,8 +19,8 @@ public class ProductRepositoryImpl implements ProductRepository {
     public int saveProduct(Product product) {
         String sql = """
                 INSERT INTO products
-                (id, name, description, price, stock, category_id, created_at, is_active)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                (id, name, description, price, stock, category_id, created_at, updated_at, is_active)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
         return template.update(
                 sql,
@@ -31,6 +31,7 @@ public class ProductRepositoryImpl implements ProductRepository {
                 product.getStock(),
                 product.getCategory().getId().toString(),
                 product.getCreatedAt(),
+                product.getUpdatedAt(),
                 product.getIsActive()
         );
     }

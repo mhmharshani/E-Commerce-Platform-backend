@@ -25,8 +25,12 @@ public class ProductRowMapper implements RowMapper<Product> {
         Category category = new Category();
         product.setCategory(category);
         category.setId(categoryId);
-        product.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
-        product.setUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());
+        product.setCreatedAt(
+                rs.getTimestamp("created_at") != null ? rs.getTimestamp("created_at").toLocalDateTime() : null
+        );
+        product.setUpdatedAt(
+                rs.getTimestamp("updated_at") != null ? rs.getTimestamp("updated_at").toLocalDateTime() : null
+        );
         product.setIsActive(rs.getBoolean("is_active"));
 
         return product;

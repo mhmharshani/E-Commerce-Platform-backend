@@ -1,5 +1,6 @@
 package edu.icet.ecom.service.impl;
 
+import edu.icet.ecom.model.Category;
 import edu.icet.ecom.model.Product;
 import edu.icet.ecom.model.dto.request.CreateProductRequest;
 import edu.icet.ecom.model.dto.response.ProductResponse;
@@ -34,6 +35,7 @@ public class ProductServiceImpl implements ProductService {
                 .stock(request.getStock())
                 .category(categoryService.findCategoryById(request.getCategoryId()))
                 .createdAt(now)
+                .updatedAt(now)
                 .isActive(true)
                 .build();
         productRepository.saveProduct(product);
@@ -50,7 +52,8 @@ public class ProductServiceImpl implements ProductService {
     public List<Product> getAllProducts() {
         List<Product> products = productRepository.getProducts();
         products.forEach(product -> {
-            categoryService.findCategoryById(product.getCategory().getId().toString());
+            Category category = categoryService.findCategoryById(product.getCategory().getId().toString());
+            product.setCategory(category);
         });
         return products;
     }

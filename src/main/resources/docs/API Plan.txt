@@ -1,0 +1,84 @@
+
+---------------Auth---------------------
+
+POST /api/auth/register
+
+POST /api/auth/login
+
+------------Products-----------------------
+
+GET /api/products
+
+GET /api/products/{id}
+
+POST /api/products
+
+PUT /api/products/{id}
+
+DELETE /api/products/{id}
+
+--------------Categories-----------------------
+
+GET /api/categories
+
+POST /api/categories
+
+PUT /api/categories/{id}
+
+DELETE /api/categories/{id}
+
+---------------Cart----------------------
+
+GET /api/cart
+
+POST /api/cart/items
+
+PUT /api/cart/items/{id}
+
+DELETE /api/cart/items/{id}
+
+--------------Orders-----------------------
+
+POST /api/orders
+
+GET /api/orders
+
+GET /api/orders/{id}
+
+PUT /api/orders/{id}/status
+
+-------------Payments-----------------------
+
+POST /api/payments
+
+GET /api/payments/{id}
+
+--------------Reviews----------------------
+
+POST /api/products/{id}/reviews
+
+GET /api/products/{id}/reviews
+
+-------------Dashboard----------------------
+
+GET /api/admin/dashboard
+
+Response --->
+{
+  "totalUsers": 250,
+  "totalProducts": 150,
+  "totalOrders": 89,
+  "totalRevenue": 250000
+}
+-----------Reports------------------------
+
+GET /api/reports/sales
+
+GET /api/reports/inventory
+
+GET /api/reports/customers
+
+GET /api/reports/abandoned-carts
+
+------------------------------------
+
