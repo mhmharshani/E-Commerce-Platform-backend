@@ -1,0 +1,131 @@
+package edu.icet.ecom.repository.impl;
+
+import edu.icet.ecom.mapper.CartItemsRowMapper;
+import edu.icet.ecom.mapper.ProductRowMapper;
+import edu.icet.ecom.model.Cart;
+import edu.icet.ecom.model.CartItems;
+import edu.icet.ecom.model.Role;
+import edu.icet.ecom.model.dto.response.CartItemCountResponse;
+import edu.icet.ecom.model.dto.response.CartItemResponse;
+import edu.icet.ecom.repository.CartRepository;
+import jdk.javadoc.doclet.Reporter;
+import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+@Repository
+@RequiredArgsConstructor
+public class CartRepositoryImpl implements CartRepository {
+
+    private final JdbcTemplate template;
+
+    @Override
+    public Cart findCartByUserId(UUID userId) {
+        String sql = """
+                SELECT *
+                FROM cart
+                WHERE user_id = ?
+                """;
+        return template.queryForObject(
+                sql,
+                (rs, rowNum) -> new Cart(
+                        UUID.fromString(rs.getString("id")),
+                        UUID.fromString(rs.getString("user_id")),
+                        rs.getTimestamp("created_at").toLocalDateTime()
+                ),
+                userId.toString()
+        );
+    }
+
+    @Override
+    public int save(Cart cart) {
+        String sql = """
+                INSERT INTO cart
+                (id, user_id, created_at)
+                VALUES (?, ?, ?)
+                """;
+        return template.update(
+                sql,
+                cart.getId().toString(),
+                cart.getUserId().toString(),
+                cart.getCreatedAt()
+        );
+    }
+
+    @Override
+    public List<CartItems> getAll() {
+        String sql = """
+                SELECT *
+                FROM cart_items
+                """;
+        return template.query(
+                sql,
+                new CartItemsRowMapper()
+        );
+    }
+
+    @Override
+    public int addToCart(CartItems cartItem) {
+        String sql = """
+                INSERT INTO cart_items
+                (id, cart_id, product_id, quantity)
+                VALUES (?, ?, ?, ?)
+                """;
+        return template.update(
+                sql,
+                cartItem.getId().toString(),
+                cartItem.getCartId().toString(),
+                cartItem.getProductId().toString(),
+                cartItem.getQuantity()
+        );
+    }
+
+    @Override
+    public int updateCart(UUID productId, CartItems cartItem) {
+        String sql = """
+                UPDATE cart_items
+                SET quantity = ?
+                WHERE cart_id = ? AND product_id = ?
+                """;
+        return template.update(
+                sql,
+                cartItem.getQuantity(),
+                cartItem.getCartId().toString(),
+                cartItem.getProductId().toString()
+        );
+    }
+
+    @Override
+    public void deleteByProductId(UUID cartId, UUID productId) {
+        String sql = """
+                DELETE FROM cart_items
+                WHERE cart_id = ? AND product_id = ?
+                """;
+        template.update(
+                sql,
+                cartId.toString(),
+                productId.toString()
+        );
+    }
+
+    @Override
+    public void clearCart(UUID cartId) {
+        String sql = """
+                DELETE FROM cart_items
+                WHERE cart_id = ?
+                """;
+        template.update(
+                sql,
+                cartId.toString()
+        );
+    }
+
+    @Override
+    public CartItemCountResponse getItemCount() {
+        return null;
+    }
+}
