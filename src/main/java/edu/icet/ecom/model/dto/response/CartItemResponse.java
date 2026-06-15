@@ -1,8 +1,6 @@
 package edu.icet.ecom.model.dto.response;
 
 import lombok.*;
-
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
@@ -10,10 +8,9 @@ import java.util.UUID;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class CartItemResponse {
     private UUID id;
-    private UUID cartId;
     private UUID productId;
     private Integer quantity;
-    private LocalDateTime createdAt;
 }

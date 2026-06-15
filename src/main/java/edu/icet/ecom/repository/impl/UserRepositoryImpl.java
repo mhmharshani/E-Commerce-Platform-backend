@@ -4,10 +4,9 @@ import edu.icet.ecom.mapper.UserRowMapper;
 import edu.icet.ecom.model.User;
 import edu.icet.ecom.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
@@ -38,27 +37,42 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User findByUsername(String username) {
-        User user = template.queryForObject("SELECT * FROM user WHERE username = ?", new UserRowMapper(), username);
-        return user == null ? null : user;
+        try {
+            return template.queryForObject("SELECT * FROM user WHERE username = ?", new UserRowMapper(), username);
+
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
     }
 
     @Override
     public User findByEmail(String email) {
-        User user = template.queryForObject("SELECT * FROM user WHERE email = ?", new UserRowMapper(), email);
-        return user == null ? null : user;
+        try {
+            return template.queryForObject(
+                    "SELECT * FROM users WHERE email = ?",
+                    new UserRowMapper(),
+                    email
+            );
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
     }
 
     @Override
     public User findByUsernameOrEmail(String usernameOrEmail) {
-        User user = template.queryForObject(""" 
-                SELECT u.*, r.id as role_id, r.name as role_name
-                FROM user u
-                JOIN roles r ON u.role_id = r.id
-                WHERE u.username = ? OR u.email = ?""",
-                new UserRowMapper(),
-                usernameOrEmail,
-                usernameOrEmail
-        );
-        return user == null ? null : user;
+        try{
+            System.out.println("User from Repository : Not null");
+            return template.queryForObject(""" 
+                    SELECT u.*, r.id as role_id, r.name as role_name
+                    FROM user u
+                    JOIN roles r ON u.role_id = r.id
+                    WHERE u.username = ? OR u.email = ?""",
+                    new UserRowMapper(),
+                    usernameOrEmail,
+                    usernameOrEmail
+            );
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
     }
 }

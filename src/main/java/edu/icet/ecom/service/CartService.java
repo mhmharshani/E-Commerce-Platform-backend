@@ -1,12 +1,10 @@
 package edu.icet.ecom.service;
 
 import edu.icet.ecom.model.Cart;
-import edu.icet.ecom.model.User;
 import edu.icet.ecom.model.dto.request.AddToCartRequest;
 import edu.icet.ecom.model.dto.request.UpdateCartItemRequest;
 import edu.icet.ecom.model.dto.response.CartItemCountResponse;
 import edu.icet.ecom.model.dto.response.CartItemResponse;
-
 import java.util.List;
 import java.util.UUID;
 
@@ -14,15 +12,15 @@ public interface CartService {
 
     public Cart getOrCreateCart(UUID userId);
 
-    List<CartItemResponse> getAllCartItems();
+    List<CartItemResponse> getAllCartItems(UUID userId);
 
-    CartItemResponse addToCart(AddToCartRequest request);
+    CartItemResponse addToCart(AddToCartRequest request,UUID userId);
 
-    CartItemResponse updateCartItem(UUID itemId, UpdateCartItemRequest request);
+    CartItemResponse updateCartItem(UUID cartId, UUID itemId, UpdateCartItemRequest request);
 
-    void removeCartItem(UUID itemId);
+    void removeCartItem(UUID userId, UUID itemId);
 
-    void clearCart();
+    void clearCart(UUID userId);
 
-    CartItemCountResponse getCartItemCount();
+    CartItemCountResponse getCartItemCount(UUID userId);
 }

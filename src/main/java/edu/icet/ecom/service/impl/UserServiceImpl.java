@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.UUID;
@@ -64,19 +63,17 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
-//    public UserDto getUserByUsername(String username) {
-//
-//        User user = userRepository.findByUsernameOrEmail(username);
-//
-//        if (user == null) {
-//            throw new ResponseStatusException(
-//                    HttpStatus.UNAUTHORIZED,
-//                    "User not found"
-//            );
-//        }
-//
-//        return userMapper.toDto(user);
-//    }
+    @Override
+    public UUID getCurrentUserId(String userName) {
 
+        User user = userRepository.findByUsernameOrEmail(userName);
+        if (user == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "User not found"
+            );
+        }
+        return user.getId();
+    }
 
 }

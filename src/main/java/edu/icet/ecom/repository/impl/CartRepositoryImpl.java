@@ -1,20 +1,14 @@
 package edu.icet.ecom.repository.impl;
 
 import edu.icet.ecom.mapper.CartItemsRowMapper;
-import edu.icet.ecom.mapper.ProductRowMapper;
 import edu.icet.ecom.model.Cart;
 import edu.icet.ecom.model.CartItems;
-import edu.icet.ecom.model.Role;
-import edu.icet.ecom.model.dto.response.CartItemCountResponse;
-import edu.icet.ecom.model.dto.response.CartItemResponse;
 import edu.icet.ecom.repository.CartRepository;
-import jdk.javadoc.doclet.Reporter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -30,15 +24,19 @@ public class CartRepositoryImpl implements CartRepository {
                 FROM cart
                 WHERE user_id = ?
                 """;
-        return template.queryForObject(
-                sql,
-                (rs, rowNum) -> new Cart(
-                        UUID.fromString(rs.getString("id")),
-                        UUID.fromString(rs.getString("user_id")),
-                        rs.getTimestamp("created_at").toLocalDateTime()
-                ),
-                userId.toString()
-        );
+        try{
+            return template.queryForObject(
+                    sql,
+                    (rs, rowNum) -> new Cart(
+                            UUID.fromString(rs.getString("id")),
+                            UUID.fromString(rs.getString("user_id")),
+                            rs.getTimestamp("created_at").toLocalDateTime()
+                    ),
+                    userId.toString()
+            );
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
     }
 
     @Override
@@ -57,14 +55,17 @@ public class CartRepositoryImpl implements CartRepository {
     }
 
     @Override
-    public List<CartItems> getAll() {
+    public List<CartItems> getAllByUserId(UUID userId) {
         String sql = """
-                SELECT *
-                FROM cart_items
-                """;
+            SELECT ci.*
+            FROM cart_items ci
+            JOIN cart c ON ci.cart_id = c.id
+            WHERE c.user_id = ?
+            """;
         return template.query(
                 sql,
-                new CartItemsRowMapper()
+                new CartItemsRowMapper(),
+                userId.toString()
         );
     }
 
@@ -85,7 +86,7 @@ public class CartRepositoryImpl implements CartRepository {
     }
 
     @Override
-    public int updateCart(UUID productId, CartItems cartItem) {
+    public int updateCart(UUID cartId, UUID productId, Integer quantity) {
         String sql = """
                 UPDATE cart_items
                 SET quantity = ?
@@ -93,9 +94,9 @@ public class CartRepositoryImpl implements CartRepository {
                 """;
         return template.update(
                 sql,
-                cartItem.getQuantity(),
-                cartItem.getCartId().toString(),
-                cartItem.getProductId().toString()
+                quantity,
+                cartId.toString(),
+                productId.toString()
         );
     }
 
@@ -125,7 +126,23 @@ public class CartRepositoryImpl implements CartRepository {
     }
 
     @Override
-    public CartItemCountResponse getItemCount() {
-        return null;
+    public CartItems findByCartIdAndProductId(UUID cartId, UUID productId) {
+        String sql = """
+            SELECT *
+            FROM cart_items
+            WHERE cart_id = ? AND product_id = ?
+            """;
+        try{
+            return template.queryForObject(
+                    sql,
+                    new CartItemsRowMapper(),
+                    cartId.toString(),
+                    productId.toString()
+            );
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+
     }
+
 }
