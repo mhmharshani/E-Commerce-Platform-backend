@@ -4,10 +4,12 @@ import edu.icet.ecom.mapper.ProductRowMapper;
 import edu.icet.ecom.model.Product;
 import edu.icet.ecom.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor
@@ -44,4 +46,22 @@ public class ProductRepositoryImpl implements ProductRepository {
                 """;
         return template.query(sql, new ProductRowMapper());
     }
+
+    @Override
+    public Product findProductById(UUID productId) {
+        String sql = """
+                SELECT *
+                FROM products
+                WHERE id = ?""";
+        try {
+            return template.queryForObject(
+                    sql,
+                    new ProductRowMapper(),
+                    productId
+            );
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+
 }
