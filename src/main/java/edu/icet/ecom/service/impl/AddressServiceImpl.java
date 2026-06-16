@@ -19,6 +19,7 @@ public class AddressServiceImpl implements AddressService {
     @Override
     public CreateAddressResponse createShippingAddress(UUID userId, CreateAddressRequest request) {
 
+        System.out.println("Request received for creating address: " + request);
         ShippingAddress address = ShippingAddress.builder()
                 .id(UUID.randomUUID())
                 .fullName(request.getFullName())
@@ -29,9 +30,12 @@ public class AddressServiceImpl implements AddressService {
                 .district(request.getDistrict())
                 .postalCode(request.getPostalCode())
                 .country(request.getCountry())
+                .userId(userId)
                 .isDefault(true)
                 .build();
 
+        System.out.println("Creating address: " + address);
+        addressRepository.save(address);
 
         return CreateAddressResponse.builder()
                 .id(address.getId())

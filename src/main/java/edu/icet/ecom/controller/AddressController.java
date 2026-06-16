@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.UUID;
@@ -21,7 +22,7 @@ public class AddressController {
     private final AddressService addressService;
 
     @PostMapping
-    public CreateAddressResponse createShippingAddress(@AuthenticationPrincipal UserDetails userDetails, CreateAddressRequest request) {
+    public CreateAddressResponse createShippingAddress(@AuthenticationPrincipal UserDetails userDetails, @RequestBody CreateAddressRequest request) {
         UUID userId = userService.getCurrentUserId(userDetails.getUsername());
         return addressService.createShippingAddress(userId, request);
     }

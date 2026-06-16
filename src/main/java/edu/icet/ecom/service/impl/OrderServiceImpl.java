@@ -31,7 +31,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public CheckoutResponse checkout(UUID userId, CheckoutRequest request) {
-
+        System.out.println("Request : "+request);
         // 1. Get cart items
         List<CartItems> cartItemsList = cartRepository.getAllByUserId(userId);
 

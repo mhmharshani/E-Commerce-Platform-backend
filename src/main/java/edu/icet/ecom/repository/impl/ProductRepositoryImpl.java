@@ -57,7 +57,7 @@ public class ProductRepositoryImpl implements ProductRepository {
             return template.queryForObject(
                     sql,
                     new ProductRowMapper(),
-                    productId
+                    productId.toString()
             );
         } catch (EmptyResultDataAccessException e) {
             return null;

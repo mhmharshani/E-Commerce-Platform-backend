@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,7 +23,7 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping
-    public CheckoutResponse checkoutOrder(@AuthenticationPrincipal UserDetails userDetails, CheckoutRequest request){
+    public CheckoutResponse checkoutOrder(@AuthenticationPrincipal UserDetails userDetails, @RequestBody CheckoutRequest request){
         UUID userId = userService.getCurrentUserId(userDetails.getUsername());
         return orderService.checkout(userId,request);
     }

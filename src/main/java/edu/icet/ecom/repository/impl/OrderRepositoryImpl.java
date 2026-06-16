@@ -35,7 +35,7 @@ public class OrderRepositoryImpl implements OrderRepository {
     public int saveOrderItem(OrderItems orderItem) {
         String sql = """
                 INSERT INTO order_items
-                (id, quantity, unit_price, subtotal, order_id, product_id)
+                (id, quantity, unit_price, sub_total, order_id, product_id)
                 VALUES (?, ?, ?, ?, ?, ?)
                 """;
         return template.update(
