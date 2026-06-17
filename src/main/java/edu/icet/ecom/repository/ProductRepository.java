@@ -11,4 +11,6 @@ public interface ProductRepository {
     public List<Product> getProducts();
 
     Product findProductById(UUID productId);
+
+    int updateStock(UUID productId, int newStock);
 }

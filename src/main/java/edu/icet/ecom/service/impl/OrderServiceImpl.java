@@ -6,10 +6,7 @@ import edu.icet.ecom.model.*;
 import edu.icet.ecom.model.dto.request.CheckoutRequest;
 import edu.icet.ecom.model.dto.response.CheckoutResponse;
 import edu.icet.ecom.model.dto.response.OrderItemResponse;
-import edu.icet.ecom.repository.CartRepository;
-import edu.icet.ecom.repository.OrderRepository;
-import edu.icet.ecom.repository.PaymentRepository;
-import edu.icet.ecom.repository.ProductRepository;
+import edu.icet.ecom.repository.*;
 import edu.icet.ecom.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,15 +24,25 @@ public class OrderServiceImpl implements OrderService {
     private final CartRepository cartRepository;
     private final ProductRepository productRepository;
     private final PaymentRepository paymentRepository;
+    private final AddressRepository addressRepository;
 
     @Override
     @Transactional
     public CheckoutResponse checkout(UUID userId, CheckoutRequest request) {
-        System.out.println("Request : "+request);
+
         // 1. Get cart items
         List<CartItems> cartItemsList = cartRepository.getAllByUserId(userId);
+        // Check if cart is not empty
+        if(cartItemsList.isEmpty()){
+            throw new RuntimeException("Cart is empty");
+        }
+        // Address validation
+        ShippingAddress address = addressRepository.findById(request.getShippingAddressId());
+        if (address == null) {
+            throw new RuntimeException("Address not found");
+        }
 
-        // 2. Calculate total
+        // Check Product existence, stock availability and Calculate total
         double total = 0;
         for(int i=0; i<cartItemsList.size(); i++){
             CartItems item = cartItemsList.get(i);
@@ -43,6 +50,10 @@ public class OrderServiceImpl implements OrderService {
             if(product == null){
                 throw new RuntimeException("Product not found: " + item.getProductId());
             }
+            if(product.getStock() < item.getQuantity()){
+                throw new RuntimeException("Insufficient stock for product: " + product.getName());
+            }
+            // Get price from product table
             total += product.getPrice() * item.getQuantity();
         }
 
@@ -88,6 +99,16 @@ public class OrderServiceImpl implements OrderService {
                     .subTotal(product.getPrice() * item.getQuantity())
                     .build()
             );
+        }
+
+        // Update - Here, decrease product stock
+        for(int i=0; i<cartItemsList.size(); i++){
+            CartItems item = cartItemsList.get(i);
+            Product product = productRepository.findProductById(item.getProductId());
+            int updated = productRepository.updateStock(product.getId(), item.getQuantity());
+            if(updated <= 0){
+                throw new RuntimeException("Failed to update stock for product: " + product.getName());
+            }
         }
 
         // 5. Create payment record

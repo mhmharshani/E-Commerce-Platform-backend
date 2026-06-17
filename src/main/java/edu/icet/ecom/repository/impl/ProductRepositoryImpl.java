@@ -64,4 +64,21 @@ public class ProductRepositoryImpl implements ProductRepository {
         }
     }
 
+    @Override
+    public int updateStock(UUID productId, int quantity) { //Decrease product stock by quantity
+        String sql = """
+            UPDATE products
+            SET stock = stock -?
+            WHERE id = ?
+            AND stock >= ?
+        """;
+
+         return template.update(
+                sql,
+                quantity,
+                productId.toString(),
+                quantity
+        );
+    }
+
 }

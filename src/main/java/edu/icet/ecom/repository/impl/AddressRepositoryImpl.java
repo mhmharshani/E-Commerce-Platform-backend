@@ -1,10 +1,15 @@
 package edu.icet.ecom.repository.impl;
 
+import edu.icet.ecom.mapper.AddressRowMapper;
+import edu.icet.ecom.mapper.ProductRowMapper;
 import edu.icet.ecom.model.ShippingAddress;
 import edu.icet.ecom.repository.AddressRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Repository
@@ -33,5 +38,22 @@ public class AddressRepositoryImpl implements AddressRepository {
                 address.getUserId().toString(),
                 address.getIsDefault()
         );
+    }
+
+    @Override
+    public ShippingAddress findById(UUID shippingAddressId) {
+        String sql = """
+                SELECT *
+                FROM addresses
+                WHERE id = ?""";
+        try {
+            return template.queryForObject(
+                    sql,
+                    new AddressRowMapper(),
+                    shippingAddressId.toString()
+            );
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
     }
 }
