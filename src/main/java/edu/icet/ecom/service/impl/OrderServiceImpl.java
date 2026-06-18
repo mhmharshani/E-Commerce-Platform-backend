@@ -4,8 +4,8 @@ import edu.icet.ecom.enums.OrderStatus;
 import edu.icet.ecom.enums.PaymentStatus;
 import edu.icet.ecom.model.*;
 import edu.icet.ecom.model.dto.request.CheckoutRequest;
-import edu.icet.ecom.model.dto.response.CheckoutResponse;
-import edu.icet.ecom.model.dto.response.OrderItemResponse;
+import edu.icet.ecom.model.dto.request.UpdateOrderStatusRequest;
+import edu.icet.ecom.model.dto.response.*;
 import edu.icet.ecom.repository.*;
 import edu.icet.ecom.service.OrderService;
 import lombok.RequiredArgsConstructor;
@@ -143,5 +143,206 @@ public class OrderServiceImpl implements OrderService {
                 .orderDate(order.getOrderDate())
                 .items(orderItemResponseList)
                 .build();
+    }
+
+    @Override
+    public List<OrderResponse> getOrders(UUID userId) {
+        List<Order> ordersList = orderRepository.findOrdersByUserId(userId);
+        List<OrderResponse> orderResponseList = new ArrayList<>();
+        for(Order order : ordersList){
+            Payment payment = paymentRepository.findPaymentByOrderId(order.getId());
+            List<OrderItems> orderItemsList = orderRepository.getAllByOrderId(order.getId());
+            List<OrderItemResponse> orderItemResponseList = new ArrayList<>();
+            for(OrderItems item : orderItemsList){
+                Product product = productRepository.findProductById(item.getProductId());
+                orderItemResponseList.add(
+                    OrderItemResponse.builder()
+                            .productId(item.getProductId())
+                            .productName(product.getName())
+                            .quantity(item.getQuantity())
+                            .unitPrice(item.getUnitPrice())
+                            .subTotal(item.getSubTotal())
+                            .build()
+                );
+            }
+            ShippingAddress address = addressRepository.findById(order.getShippingAddressId());
+
+            orderResponseList.add(
+                    OrderResponse.builder()
+                        .id(order.getId())
+                        .status(order.getStatus())
+                        .paymentStatus(payment.getPaymentStatus())
+                        .totalAmount(order.getTotalAmount())
+                        .orderDate(order.getOrderDate())
+                        .shippingAddress(
+                                AddressResponse.builder()
+                                    .id(address.getId())
+                                    .fullName(address.getFullName())
+                                    .phoneNumber(address.getPhoneNumber())
+                                    .addressLine1(address.getAddressLine1())
+                                    .city(address.getCity())
+                                    .postalCode(address.getPostalCode())
+                                    .build()
+                        )
+                        .orderItemResponseList(orderItemResponseList)
+                        .build()
+            );
+        }
+        return orderResponseList;
+    }
+
+    @Override
+    public OrderResponse getOrderById(UUID orderId) {
+        Order order = orderRepository.findOrderByOrderId(orderId);
+        if(order != null){
+            Payment payment = paymentRepository.findPaymentByOrderId(order.getId());
+            List<OrderItems> orderItemsList = orderRepository.getAllByOrderId(order.getId());
+
+            List<OrderItemResponse> orderItemResponseList = new ArrayList<>();
+
+            for(OrderItems item : orderItemsList){
+                Product product = productRepository.findProductById(item.getProductId());
+                orderItemResponseList.add(
+                        OrderItemResponse.builder()
+                                .productId(item.getProductId())
+                                .productName(product.getName())
+                                .quantity(item.getQuantity())
+                                .unitPrice(item.getUnitPrice())
+                                .subTotal(item.getSubTotal())
+                                .build()
+                );
+            }
+            ShippingAddress address = addressRepository.findById(order.getShippingAddressId());
+
+            return OrderResponse.builder()
+                    .id(order.getId())
+                    .status(order.getStatus())
+                    .paymentStatus(payment.getPaymentStatus())
+                    .totalAmount(order.getTotalAmount())
+                    .orderDate(order.getOrderDate())
+                    .shippingAddress(
+                            AddressResponse.builder()
+                                    .id(address.getId())
+                                    .fullName(address.getFullName())
+                                    .phoneNumber(address.getPhoneNumber())
+                                    .addressLine1(address.getAddressLine1())
+                                    .city(address.getCity())
+                                    .postalCode(address.getPostalCode())
+                                    .build()
+                    )
+                    .orderItemResponseList(orderItemResponseList)
+                    .build();
+        }
+
+        return null;
+    }
+
+    @Override
+    public List<OrderResponse> getAllOrders() {
+        List<Order> ordersList = orderRepository.getAll();
+        List<OrderResponse> orderResponseList = new ArrayList<>();
+        for(Order order : ordersList){
+            Payment payment = paymentRepository.findPaymentByOrderId(order.getId());
+            List<OrderItems> orderItemsList = orderRepository.getAllByOrderId(order.getId());
+            List<OrderItemResponse> orderItemResponseList = new ArrayList<>();
+            for(OrderItems item : orderItemsList){
+                Product product = productRepository.findProductById(item.getProductId());
+                orderItemResponseList.add(
+                        OrderItemResponse.builder()
+                                .productId(item.getProductId())
+                                .productName(product.getName())
+                                .quantity(item.getQuantity())
+                                .unitPrice(item.getUnitPrice())
+                                .subTotal(item.getSubTotal())
+                                .build()
+                );
+            }
+            ShippingAddress address = addressRepository.findById(order.getShippingAddressId());
+
+            orderResponseList.add(
+                    OrderResponse.builder()
+                            .id(order.getId())
+                            .status(order.getStatus())
+                            .paymentStatus(payment.getPaymentStatus())
+                            .totalAmount(order.getTotalAmount())
+                            .orderDate(order.getOrderDate())
+                            .shippingAddress(
+                                    AddressResponse.builder()
+                                            .id(address.getId())
+                                            .fullName(address.getFullName())
+                                            .phoneNumber(address.getPhoneNumber())
+                                            .addressLine1(address.getAddressLine1())
+                                            .city(address.getCity())
+                                            .postalCode(address.getPostalCode())
+                                            .build()
+                            )
+                            .orderItemResponseList(orderItemResponseList)
+                            .build()
+            );
+        }
+        return orderResponseList;
+    }
+
+    @Override
+    public UpdateOrderStatusResponse updateStatus(UUID orderId, UpdateOrderStatusRequest request) {
+        Order order = orderRepository.findOrderByOrderId(orderId);
+        if(order != null){
+            int updated = orderRepository.updateOrderStatus(orderId, request.getOrderStatus());
+            if(updated<=0){
+                throw new RuntimeException("Failed to update order status for order: " + orderId);
+            }
+            return UpdateOrderStatusResponse.builder()
+                    .id(orderId)
+                    .userId(order.getUserId())
+                    .status(request.getOrderStatus())
+                    .build();
+        }
+        return null;
+    }
+
+    @Override
+    public OrderResponse getOrderByIdAndUserId(UUID orderId, UUID userId) {
+        Order order = orderRepository.findOrderByIdAndUserId(orderId,userId);
+        if(order != null){
+            Payment payment = paymentRepository.findPaymentByOrderId(order.getId());
+            List<OrderItems> orderItemsList = orderRepository.getAllByOrderId(order.getId());
+
+            List<OrderItemResponse> orderItemResponseList = new ArrayList<>();
+
+            for(OrderItems item : orderItemsList){
+                Product product = productRepository.findProductById(item.getProductId());
+                orderItemResponseList.add(
+                        OrderItemResponse.builder()
+                                .productId(item.getProductId())
+                                .productName(product.getName())
+                                .quantity(item.getQuantity())
+                                .unitPrice(item.getUnitPrice())
+                                .subTotal(item.getSubTotal())
+                                .build()
+                );
+            }
+            ShippingAddress address = addressRepository.findById(order.getShippingAddressId());
+
+            return OrderResponse.builder()
+                    .id(order.getId())
+                    .status(order.getStatus())
+                    .paymentStatus(payment.getPaymentStatus())
+                    .totalAmount(order.getTotalAmount())
+                    .orderDate(order.getOrderDate())
+                    .shippingAddress(
+                            AddressResponse.builder()
+                                    .id(address.getId())
+                                    .fullName(address.getFullName())
+                                    .phoneNumber(address.getPhoneNumber())
+                                    .addressLine1(address.getAddressLine1())
+                                    .city(address.getCity())
+                                    .postalCode(address.getPostalCode())
+                                    .build()
+                    )
+                    .orderItemResponseList(orderItemResponseList)
+                    .build();
+        }
+
+        return null;
     }
 }
