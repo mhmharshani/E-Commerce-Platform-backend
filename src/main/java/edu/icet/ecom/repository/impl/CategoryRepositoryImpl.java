@@ -1,15 +1,13 @@
 package edu.icet.ecom.repository.impl;
 
-import edu.icet.ecom.mapper.UserRowMapper;
 import edu.icet.ecom.model.Category;
-import edu.icet.ecom.model.User;
 import edu.icet.ecom.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-
 import java.util.List;
+import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor
@@ -33,13 +31,13 @@ public class CategoryRepositoryImpl implements CategoryRepository {
     }
 
     @Override
-    public Category findCategoryById(String id) {
+    public Category findCategoryById(UUID id) {
         Category category = template.queryForObject(""" 
                         SELECT *
                         FROM categories
                         WHERE id = ?""",
                 new BeanPropertyRowMapper<>(Category.class),
-                id
+                id.toString()
         );
         return category == null ? null : category;
     }

@@ -1,5 +1,6 @@
 package edu.icet.ecom.service.impl;
 
+import edu.icet.ecom.enums.InventoryAction;
 import edu.icet.ecom.enums.OrderStatus;
 import edu.icet.ecom.enums.PaymentStatus;
 import edu.icet.ecom.model.*;
@@ -9,6 +10,7 @@ import edu.icet.ecom.model.dto.response.*;
 import edu.icet.ecom.repository.*;
 import edu.icet.ecom.service.OrderService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
@@ -18,6 +20,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
@@ -25,6 +28,7 @@ public class OrderServiceImpl implements OrderService {
     private final ProductRepository productRepository;
     private final PaymentRepository paymentRepository;
     private final AddressRepository addressRepository;
+    private final InventoryRepository inventoryRepository;
 
     @Override
     @Transactional
@@ -42,7 +46,7 @@ public class OrderServiceImpl implements OrderService {
             throw new RuntimeException("Address not found");
         }
 
-        // Check Product existence, stock availability and Calculate total
+        // Check Product existence, stock availability, Calculate total
         double total = 0;
         for(int i=0; i<cartItemsList.size(); i++){
             CartItems item = cartItemsList.get(i);
@@ -101,7 +105,7 @@ public class OrderServiceImpl implements OrderService {
             );
         }
 
-        // Update - Here, decrease product stock
+        // Update - Here, decrease product stock, create inventory log
         for(int i=0; i<cartItemsList.size(); i++){
             CartItems item = cartItemsList.get(i);
             Product product = productRepository.findProductById(item.getProductId());
@@ -109,6 +113,23 @@ public class OrderServiceImpl implements OrderService {
             if(updated <= 0){
                 throw new RuntimeException("Failed to update stock for product: " + product.getName());
             }
+
+            //Create inventory log
+            int logCreated = inventoryRepository.save(
+                    InventoryLog.builder()
+                            .id(UUID.randomUUID())
+                            .productId(product.getId())
+                            .quantityChange(-item.getQuantity())
+                            .stockBefore(product.getStock())
+                            .stockAfter(product.getStock() - item.getQuantity()) //Need to consider place of calculation later due to multithreading
+                            .action(InventoryAction.ORDER_PLACED)
+                            .referenceId(UUID.randomUUID())
+                            .createdAt(LocalDateTime.now())
+                            .build()
+            );
+
+            if(logCreated <= 0) log.error("Inventory Log is not inserted to DB");
+
         }
 
         // 5. Create payment record

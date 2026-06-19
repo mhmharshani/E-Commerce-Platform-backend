@@ -1,6 +1,7 @@
 package edu.icet.ecom.model.dto.request;
 
 import lombok.*;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -12,5 +13,5 @@ public class CreateProductRequest {
     private String description;
     private Double price;
     private Integer stock;
-    private String categoryId;
+    private UUID categoryId;
 }
