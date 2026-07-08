@@ -1,5 +1,6 @@
 package edu.icet.ecom.model.dto.response;
 
+import edu.icet.ecom.model.Product;
 import lombok.*;
 import java.util.UUID;
 
@@ -11,6 +12,6 @@ import java.util.UUID;
 @Builder
 public class CartItemResponse {
     private UUID id;
-    private UUID productId;
     private Integer quantity;
+    private Product product;
 }

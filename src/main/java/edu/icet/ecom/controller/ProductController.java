@@ -6,12 +6,12 @@ import edu.icet.ecom.model.dto.response.ProductResponse;
 import edu.icet.ecom.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
-@RequestMapping("/admin/product")
+@RequestMapping("/product")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:5173")
 public class ProductController {
 
     private final ProductService productService;

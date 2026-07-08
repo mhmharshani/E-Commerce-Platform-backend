@@ -8,6 +8,7 @@ import edu.icet.ecom.service.CartService;
 import edu.icet.ecom.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +17,8 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/user/cart")
+@CrossOrigin(origins = "http://localhost:5173")
+@RequestMapping("/cart")
 public class CartController {
 
     private final CartService cartService;

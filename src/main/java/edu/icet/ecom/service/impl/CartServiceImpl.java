@@ -2,11 +2,13 @@ package edu.icet.ecom.service.impl;
 
 import edu.icet.ecom.model.Cart;
 import edu.icet.ecom.model.CartItems;
+import edu.icet.ecom.model.Product;
 import edu.icet.ecom.model.dto.request.AddToCartRequest;
 import edu.icet.ecom.model.dto.request.UpdateCartItemRequest;
 import edu.icet.ecom.model.dto.response.CartItemCountResponse;
 import edu.icet.ecom.model.dto.response.CartItemResponse;
 import edu.icet.ecom.repository.CartRepository;
+import edu.icet.ecom.repository.ProductRepository;
 import edu.icet.ecom.service.CartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,7 @@ import java.util.UUID;
 public class CartServiceImpl implements CartService {
 
     private final CartRepository repository;
+    private final ProductRepository productRepository;
 
     @Override
     public Cart getOrCreateCart(UUID userId) {
@@ -48,13 +51,17 @@ public class CartServiceImpl implements CartService {
         List<CartItemResponse> cartItemResponseList = new ArrayList<>();
 
         all.forEach(cartItem -> {
-            cartItemResponseList.add(
-                    CartItemResponse.builder()
-                            .id(cartItem.getId())
-                            .productId(cartItem.getProductId())
-                            .quantity(cartItem.getQuantity())
-                            .build()
-            );
+            Product product = productRepository.findProductById(cartItem.getProductId());
+            if(product != null){
+                cartItemResponseList.add(
+                        CartItemResponse.builder()
+                                .id(cartItem.getId())
+                                .quantity(cartItem.getQuantity())
+                                .product(product)
+                                .build()
+                );
+            }
+
         });
 
         return cartItemResponseList;
@@ -63,6 +70,7 @@ public class CartServiceImpl implements CartService {
     @Override
     public CartItemResponse addToCart(AddToCartRequest request, UUID userId) {
         Cart currentUserCart = getOrCreateCart(userId);
+        Product product = productRepository.findProductById(request.getProductId());
         CartItems cartItem = CartItems.builder()
                 .id(UUID.randomUUID())
                 .cartId(currentUserCart.getId())
@@ -73,8 +81,8 @@ public class CartServiceImpl implements CartService {
         repository.addToCart(cartItem);
         return CartItemResponse.builder()
                 .id(cartItem.getId())
-                .productId(cartItem.getProductId())
                 .quantity(cartItem.getQuantity())
+                .product(product)
                 .build();
     }
 
@@ -84,10 +92,12 @@ public class CartServiceImpl implements CartService {
         repository.updateCart(currentUserCart.getId(),itemId, request.getQuantity());
 
         CartItems cartItem = repository.findByCartIdAndProductId(currentUserCart.getId(), itemId);
+        Product product = productRepository.findProductById(cartItem.getProductId());
+
         return CartItemResponse.builder()
                 .id(cartItem.getId())
-                .productId(itemId)
                 .quantity(request.getQuantity())
+                .product(product)
                 .build();
     }
 
